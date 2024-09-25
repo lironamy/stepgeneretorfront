@@ -1,0 +1,264 @@
+{
+    "questions": [
+      {
+        "question": "How intense do you like each part of the program to be?",
+        "type": "multiple",
+        "possible_answers": [
+          {
+            "possible_answers": "Start",
+            "Answer_translation": [
+              { "Answer": 1 },
+              { "Answer": 2 },
+              { "Answer": 3 },
+              { "Answer": 4 },
+              { "Answer": 5 },
+              { "Answer": 6 },
+              { "Answer": 7 },
+              { "Answer": 8 },
+              { "Answer": 9 },
+              { "Answer": 10 }
+            ]
+          },
+          {
+            "possible_answers": "Midway",
+            "Answer_translation": [
+              { "Answer": 1 },
+              { "Answer": 2 },
+              { "Answer": 3 },
+              { "Answer": 4 },
+              { "Answer": 5 },
+              { "Answer": 6 },
+              { "Answer": 7 },
+              { "Answer": 8 },
+              { "Answer": 9 },
+              { "Answer": 10 }
+            ]
+          },
+          {
+            "possible_answers": "End",
+            "Answer_translation": [
+              { "Answer": 1 },
+              { "Answer": 2 },
+              { "Answer": 3 },
+              { "Answer": 4 },
+              { "Answer": 5 },
+              { "Answer": 6 },
+              { "Answer": 7 },
+              { "Answer": 8 },
+              { "Answer": 9 },
+              { "Answer": 10 }
+            ]
+          }
+        ]
+      },
+      {
+        "question": "How would you articulate your ideal intimacy?",
+        "type": "multiple",
+        "possible_answers": [
+          {
+            "possible_answers": "Start",
+            "Answer_translation": [
+              { "Answer": 1 },
+              { "Answer": 2 },
+              { "Answer": 3 },
+              { "Answer": 4 },
+              { "Answer": 5 },
+              { "Answer": 6 },
+              { "Answer": 7 }
+            ]
+          },
+          {
+            "possible_answers": "Midway",
+            "Answer_translation": [
+              { "Answer": 1 },
+              { "Answer": 2 },
+              { "Answer": 3 },
+              { "Answer": 4 },
+              { "Answer": 5 },
+              { "Answer": 6 },
+              { "Answer": 7 }
+            ]
+          },
+          {
+            "possible_answers": "End",
+            "Answer_translation": [
+              { "Answer": 1 },
+              { "Answer": 2 },
+              { "Answer": 3 },
+              { "Answer": 4 },
+              { "Answer": 5 },
+              { "Answer": 6 },
+              { "Answer": 7 },
+              { "Answer": 8 },
+              { "Answer": 9 },
+              { "Answer": 10 }
+            ]
+          }
+        ]
+      },
+      {
+        "question": "How much do you love diversity in your sexual experiences?",
+        "type": "single",
+        "possible_answers": [
+          {
+            "Answer": "as much as possible",
+            "Answer_translation": 4,
+            "patterns": 4
+          },
+          {
+            "Answer": "I like diversity",
+            "Answer_translation": 3,
+            "patterns": 3
+          },
+          {
+            "Answer": "to some degree",
+            "Answer_translation": 2,
+            "patterns": 2
+          },
+          {
+            "Answer": "I don’t like diversity",
+            "Answer_translation": 1,
+            "patterns": 1
+          }
+        ]
+      },
+      {
+        "question": "Which heat level takes your pleasure up a notch?",
+        "type": "single",
+        "possible_answers": [
+          {
+            "Answer": "I prefer it cooler",
+            "Answer_translation": 0,
+            "patterns": 40
+          },
+          {
+            "Answer": "Standard is perfect",
+            "Answer_translation": 37,
+            "patterns": 40
+          },
+          {
+            "Answer": "I like a little extra warmth",
+            "Answer_translation": 39,
+            "patterns": 40
+          },
+          {
+            "Answer": "I prefer it quite hot",
+            "Answer_translation": 42,
+            "patterns": 40
+          }
+        ]
+      },
+      {
+        "question": "How much lube would make your journey to pleasure smoother?",
+        "type": "single",
+        "possible_answers": [
+          {
+            "Answer": "Barely There",
+            "Answer_translation": 1,
+            "patterns": 2
+          },
+          {
+            "Answer": "Balanced Glide",
+            "Answer_translation": 2,
+            "patterns": 2
+          },
+          {
+            "Answer": "Super Slick",
+            "Answer_translation": 3,
+            "patterns": 2
+          }
+        ]
+      },
+      {
+        "question": "What are your hrausel preferences?",
+        "type": "single",
+        "possible_answers": [
+          {
+            "Answer": "Vaginal (1/0)",
+            "Answer_translation": [1, 0],
+            "patterns": 1
+          },
+          {
+            "Answer": "Clitoral (0/1)",
+            "Answer_translation": [0, 1],
+            "patterns": 2
+          },
+          {
+            "Answer": "Combination (1/1)",
+            "Answer_translation": [1, 1],
+            "patterns": 3
+          },
+          {
+            "Answer": "I don't know",
+            "Answer_translation": [1, 1],
+            "patterns": 4
+          }
+        ]
+      },
+      {
+        "question": "How do you experience orgasms? (average time of session between 1-10 minutes)",
+        "type": "single",
+        "possible_answers": [
+          {
+            "Answer": "I never experienced orgasms",
+            "Answer_translation": 1
+          },
+          {
+            "Answer": "It is hard for me to get to orgasms",
+            "Answer_translation": 2
+          },
+          {
+            "Answer": "I get easily to orgasms",
+            "Answer_translation": 3
+          },
+          {
+            "Answer": "I have multiple orgasms",
+            "Answer_translation": 4
+          }
+        ]
+      },
+      {
+        "question": "What would you like to do during an intimate session?",
+        "type": "single",
+        "possible_answers": [
+          {
+            "Answer": "Listen to music",
+            "Answer_translation": 1
+          },
+          {
+            "Answer": "Talk to my partner",
+            "Answer_translation": 2
+          },
+          {
+            "Answer": "Explore myself",
+            "Answer_translation": 3
+          },
+          {
+            "Answer": "Audio book",
+            "Answer_translation": 4
+          },
+          {
+            "Answer": "Watch pornography",
+            "Answer_translation": 5
+          },
+          {
+            "Answer": "Let the app control me",
+            "Answer_translation": 6
+          },
+          {
+            "Answer": "Voice Command",
+            "Answer_translation": 7
+          },
+          {
+            "Answer": "Tantra Meditation",
+            "Answer_translation": 8
+          },
+          {
+            "Answer": "Breathing Exercise",
+            "Answer_translation": 9
+          }
+        ]
+      }
+    ]
+  }
+  

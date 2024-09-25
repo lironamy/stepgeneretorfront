@@ -1,0 +1,141 @@
+/* General body and container styling */
+body {
+    font-family: Arial, sans-serif; /* Modern, readable font */
+    background: #f4f4f9; /* Light grey background for less strain on the eyes */
+    color: #333; /* Dark grey text for readability */
+    padding: 20px;
+    margin: 0;
+  }
+  
+  .container {
+    max-width: 600px; /* Limits the width of the quiz for readability */
+    margin: 30px auto; /* Centers the quiz on the page */
+    padding: 20px;
+    background: white; /* White background for the quiz area */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Subtle shadow for a floating effect */
+    border-radius: 8px; /* Rounded corners */
+  }
+  
+  /* Header styling */
+  h1 {
+    text-align: center; /* Centers the quiz title */
+    color: #5a67d8; /* Soft blue color */
+  }
+  
+  /* Question and answers styling */
+  .question {
+    margin-bottom: 20px; /* Adds space between each question */
+  }
+  
+  .question h2 {
+    font-size: 20px; /* Larger font size for questions */
+    color: #4a5568; /* Darker grey for emphasis */
+  }
+  
+  .answer {
+    margin-left: 20px; /* Indents answers for a clear hierarchy */
+    margin-top: 5px;
+  }
+  
+  .answer label {
+    display: block; /* Makes labels block to take up full width */
+    cursor: pointer; /* Indicates that the label is interactive */
+  }
+  
+  /* Input range slider styling */
+  input[type="range"] {
+    width: 100%; /* Full width sliders */
+    margin: 10px 0; /* Space around sliders */
+  }
+  
+  /* Result display styling */
+  #result p {
+    font-weight: bold; /* Makes result text bold */
+    color: #2f855a; /* Green color for results for a positive feeling */
+  }
+  
+  /* Button styling */
+  button {
+    display: block; /* Ensures the button is a block element */
+    width: 100%; /* Full width button */
+    padding: 10px 20px; /* Padding for better clickability */
+    background: #5a67d8; /* Matching the header color */
+    color: white; /* White text on the button */
+    border: none; /* No border for a cleaner look */
+    border-radius: 4px; /* Rounded corners */
+    cursor: pointer; /* Indicates the button is clickable */
+    margin-top: 20px; /* Space above the button */
+    transition: background-color 0.3s; /* Smooth transition for hover effect */
+  }
+  
+  button:hover {
+    background-color: #434190; /* Darker blue on hover for visual feedback */
+  }
+  
+  .start {
+    background: #EAD1DC; /* Darker blue for the start button */
+  }
+  
+  .midway {
+    background: #D9D2E9; /* Darker blue for the midway button */
+  }
+  
+  .end {
+    background: #CFE2F3; /* Darker blue for the end button */
+  }
+  
+  #result {
+    margin-top: 20px;
+  }
+  
+  .question-result {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+  }
+  
+  .question-result h3 {
+    margin-top: 0;
+  }
+  
+
+  .recipe-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    text-align: center;
+  }
+
+  .recipe-table th {
+    /* background-color: #f4f4f9; */
+    padding: 10px;
+    border: 1px solid #ccc;
+  }
+
+  .recipe-table td {
+    padding: 10px;
+    border: 1px solid #ccc;
+  }
+
+  /* .recipe-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  } */
+
+  .recipe-table tr:hover {
+    background-color: #f4f4f9;
+  }
+
+  .recipe-table th:first-child, .recipe-table td:first-child {
+    width: 10px;
+  }
+  .recipe-table th:nth-child(2), .recipe-table td:nth-child(2) {
+    width: 100px;
+  }
+  .recipe-table th:nth-child(3), .recipe-table td:nth-child(3) {
+    width: 100px;
+  }
+
+
+  
