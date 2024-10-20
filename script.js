@@ -124,7 +124,6 @@ fetch('questions.json')
                 const selectedRadio = question.querySelector('input[type="radio"]:checked');
                 if (selectedRadio) {
                     answers = JSON.parse(selectedRadio.value); // Parse the stored array value
-                    console.log(answers);
                 } else {
                     console.warn(`No option selected for Hrausel preferences`);
                 }
@@ -170,6 +169,23 @@ function safeJSONParse(str) {
 }
 
 
+function clampToMax(value, max) {
+    let num;
+    if (Array.isArray(value)) {
+        num = value.map(v => parseFloat(v));
+    } else if (typeof value === 'string') {
+        num = parseFloat(value);
+    } else if (typeof value === 'number') {
+        num = value;
+    } else {
+        num = 0; 
+    }
+    if (Array.isArray(num)) {
+        return num.map(v => isNaN(v) ? 0 : Math.min(v, max));
+    } else {
+        return isNaN(num) ? 0 : Math.min(num, max);
+    }
+}
 
 
 
@@ -178,14 +194,89 @@ function safeJSONParse(str) {
 
 async function fetchAndApplyAnswers() {
     try {
-        const response = await fetch('http://localhost:4000/setanswers');
-        const { data: answersData } = await response.json();
+
+
+        console.log('Entire answersData:', answersData);
+
         applyAnswers(answersData);
+
+        // Extract necessary values to generate the table immediately after answers are applied
+        let heatLevelExt, heatLevelInt, hrauselPreference, intimacyStartValue, intimacyMidwayValue, intimacyEndValue;
+        let diversityValue, intenseLvlStartValue, intenseLvlMidwayValue, intenseLvlEndValue, ExternalLubricationLevel;
+
+        // Extract the necessary answers from the fetched data
+        answersData.forEach(answer => {
+
+            if (answer.question && answer.question.includes("Which heat level takes your pleasure up a notch?")) {
+                if (answer.answer_id !== undefined) {
+                    heatLevelExt = clampToMax(answer.answer_id, 42);
+                    heatLevelInt = clampToMax(answer.answer_id, 42);
+                }
+            } else if (answer.question && answer.question.includes("What are your hrausel preferences?")) {
+                if (Array.isArray(answer.answer_id) && answer.answer_id.length > 0) {
+                    hrauselPreference = answer.answer_id;
+                }
+            } else if (answer.question && answer.question.includes("How would you articulate your ideal intimacy")) {
+                if (Array.isArray(answer.answers) && answer.answers.length > 0) {
+                    intimacyStartValue = clampToMax(answer.answers.find(a => a.possible_answers === 'Start')?.answer_id, 10);
+                    intimacyMidwayValue = clampToMax(answer.answers.find(a => a.possible_answers === 'Midway')?.answer_id, 10);
+                    intimacyEndValue = clampToMax(answer.answers.find(a => a.possible_answers === 'End')?.answer_id, 10);
+                }
+            } else if (answer.question && answer.question.includes("How much do you love diversity in your sexual experiences?")) {
+                if (answer.answer_id !== undefined) {
+                    diversityValue = clampToMax(answer.answer_id, 10);
+                }
+            } else if (answer.question && answer.question.includes("How intense do you like each part of the program to be?")) {
+                if (Array.isArray(answer.answers) && answer.answers.length > 0) {
+                    intenseLvlStartValue = clampToMax(answer.answers.find(a => a.possible_answers === 'Start')?.answer_id, 10);
+                    intenseLvlMidwayValue = clampToMax(answer.answers.find(a => a.possible_answers === 'Midway')?.answer_id, 10);
+                    intenseLvlEndValue = clampToMax(answer.answers.find(a => a.possible_answers === 'End')?.answer_id, 10);
+                }
+            } else if (answer.question && answer.question.includes("How much lube would make your journey to pleasure smoother?")) {
+                if (answer.answer_id !== undefined) {
+                    ExternalLubricationLevel = clampToMax(answer.answer_id, 10);
+                }
+            }
+        });
+
+       
+        if (
+            heatLevelExt !== undefined &&
+            heatLevelInt !== undefined &&
+            hrauselPreference !== undefined &&
+            hrauselPreference.length > 0 &&
+            intimacyStartValue !== undefined &&
+            diversityValue !== undefined &&
+            intenseLvlStartValue !== undefined &&
+            ExternalLubricationLevel !== undefined
+        ) {
+            calculateAndDisplayResult(
+                heatLevelExt,
+                heatLevelInt,
+                hrauselPreference,
+                intimacyStartValue,
+                diversityValue,
+                intenseLvlStartValue,
+                ExternalLubricationLevel,
+                intimacyMidwayValue,
+                intenseLvlMidwayValue,
+                intenseLvlEndValue,
+                intimacyEndValue
+            );
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: `Some values are missing. Please ensure all questions have valid answers.`,
+            });
+            console.error('Required answers not found or are incomplete.');
+        }
+
     } catch (error) {
         console.error('Error fetching answers:', error);
-        showError('Failed to load saved answers. Please try again later.');
     }
 }
+
 
 function applyAnswers(answers) {
     const questionDivs = document.querySelectorAll('.question');
@@ -385,25 +476,6 @@ document.addEventListener('DOMContentLoaded', function () {
         submitButton.addEventListener('click', function () {
             const answers = getAnswers();
 
-            console.log(answers);
-
-            const clampToMax = (value, max) => {
-                let num;
-                if (Array.isArray(value)) {
-                    num = value.map(v => parseFloat(v));
-                } else if (typeof value === 'string') {
-                    num = parseFloat(value);
-                } else if (typeof value === 'number') {
-                    num = value;
-                } else {
-                    num = 0; 
-                }
-                if (Array.isArray(num)) {
-                    return num.map(v => isNaN(v) ? 0 : Math.min(v, max));
-                } else {
-                    return isNaN(num) ? 0 : Math.min(num, max);
-                }
-            };
 
             let heatLevelExt, heatLevelInt, hrauselPreference, intimacyStartValue, intimacyMidwayValue, intimacyEndValue;
             let diversityValue, intenseLvlStartValue, intenseLvlMidwayValue, intenseLvlEndValue, ExternalLubricationLevel;
@@ -433,12 +505,24 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
 
-            if (heatLevelExt !== undefined && hrauselPreference !== undefined && intimacyStartValue !== undefined && diversityValue !== undefined && intenseLvlStartValue !== undefined && ExternalLubricationLevel !== undefined) {
+            if (
+                heatLevelExt !== undefined && 
+                hrauselPreference !== undefined && 
+                intimacyStartValue !== undefined && 
+                diversityValue !== undefined && 
+                intenseLvlStartValue !== undefined && 
+                ExternalLubricationLevel !== undefined
+            ) {
                 calculateAndDisplayResult(
                     heatLevelExt, heatLevelInt, hrauselPreference, intimacyStartValue, diversityValue,
                     intenseLvlStartValue, ExternalLubricationLevel, intimacyMidwayValue,
                     intenseLvlMidwayValue, intenseLvlEndValue, intimacyEndValue
                 );
+
+                // Enable the download button after generating the table
+                if (downloadButton) {
+                    downloadButton.disabled = false;
+                }
             } else {
                 Swal.fire({
                     icon: 'error',
@@ -453,6 +537,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (downloadButton) {
+        // Initially disable the download button until the table is generated
+
         downloadButton.addEventListener('click', function () {
             if (document.getElementById('tdresults').rows.length > 0) {
                 downloadTable();
@@ -469,35 +555,37 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-function downloadTable() {
+async function downloadTable() {
     const table = document.getElementById('tdresults');
     if (!table) {
-        console.error('Table with ID "result-table" not found.');
+        console.error('Table with ID "tdresults" not found.');
         return;
     }
 
     const rows = table.rows;
     const result = [];
 
+    // Collect data from the table rows
     for (let i = 0; i < rows.length; i++) {
         const cells = rows[i].cells;
         const row = {
-            section: cells[0].textContent,
-            step: cells[1].textContent,
-            time: cells[2].textContent,
-            externalDesiredTemp: cells[3].textContent,
-            internalDesiredTemp: cells[4].textContent,
-            vibrationPattern: cells[5].textContent,
-            vibrationIntensity: cells[6].textContent,
-            suctionPattern: cells[7].textContent,
-            suctionIntensity: cells[8].textContent,
-            extLub: cells[9].textContent,
-            intLub: cells[10].textContent
+            1: cells[1].textContent,
+            2: cells[3].textContent,
+            3: cells[4].textContent,
+            4: cells[5].textContent,
+            5: cells[6].textContent,
+            6: cells[7].textContent,
+            7: cells[8].textContent,
+            8: cells[9].textContent,
+            9: cells[10].textContent
         };
         result.push(row);
     }
 
+    // Convert collected data to JSON format
     const data = JSON.stringify(result, null, 2);
+    
+    // Create a Blob and download it as a file
     const blob = new Blob([data], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -507,4 +595,29 @@ function downloadTable() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+
+    // Save JSON data to the database
+    try {
+        const response = await fetch('http://52.23.246.251:8080/saveeasyjson', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ mac_address: userMacAddress, easygjson: result })
+        });
+
+        // Handling response from the server
+        if (response.ok) {
+            const responseData = await response.json();
+            console.log('JSON saved to database:', responseData);
+        } else {
+            const errorResponse = await response.json();
+            console.error('Failed to save JSON to the database:', errorResponse.message);
+        }
+    } catch (error) {
+        console.error('Error saving JSON to database:', error);
+    }
 }
+
+
+
