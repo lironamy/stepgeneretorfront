@@ -577,7 +577,8 @@ async function downloadTable() {
             6: cells[7].textContent,
             7: cells[8].textContent,
             8: cells[9].textContent,
-            9: cells[10].textContent
+            9: cells[10].textContent,
+            10: "5"
         };
         result.push(row);
     }
