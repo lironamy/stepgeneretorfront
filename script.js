@@ -569,16 +569,16 @@ async function downloadTable() {
     for (let i = 0; i < rows.length; i++) {
         const cells = rows[i].cells;
         const row = {
-            1: cells[1].textContent,
-            2: cells[3].textContent,
-            3: cells[4].textContent,
-            4: cells[5].textContent,
-            5: cells[6].textContent,
-            6: cells[7].textContent,
-            7: cells[8].textContent,
-            8: cells[9].textContent,
-            9: cells[10].textContent,
-            10: "5"
+            1: parseInt(cells[1].textContent, 10),
+            2: parseInt(cells[3].textContent, 10),
+            3: parseInt(cells[4].textContent, 10),
+            4: parseInt(cells[5].textContent, 10),
+            5: parseInt(cells[6].textContent, 10),
+            6: parseInt(cells[7].textContent, 10),
+            7: parseInt(cells[8].textContent, 10),
+            8: parseInt(cells[9].textContent, 10),
+            9: parseInt(cells[10].textContent, 10),
+            10: 5
         };
         result.push(row);
     }
