@@ -153,6 +153,11 @@
         "type": "single",
         "possible_answers": [
           {
+            "Answer": "No Glide",
+            "Answer_translation": 0,
+            "patterns": 2
+          },
+          {
             "Answer": "Barely There",
             "Answer_translation": 1,
             "patterns": 2
