@@ -101,7 +101,9 @@ fetch('questions.json')
                 noAnswerDiv.textContent = 'No possible answers available';
                 questionDiv.appendChild(noAnswerDiv);
             }
-    
+            
+            handleHrauselSelection();
+
             container.appendChild(questionDiv);
         });
     }
@@ -188,6 +190,18 @@ function clampToMax(value, max) {
 }
 
 
+function getStimulationValues(i, stimulationPreference) {
+    let stage;
+    if (i < 40) {
+        stage = "start";
+    } else if (i < 80) {
+        stage = "middle";
+    } else {
+        stage = "end";
+    }
+    
+    return stimulationPreference.Answer_translation[stage];
+}
 
 
 
@@ -203,6 +217,7 @@ async function fetchAndApplyAnswers() {
         // Extract necessary values to generate the table immediately after answers are applied
         let heatLevelExt, heatLevelInt, hrauselPreference, intimacyStartValue, intimacyMidwayValue, intimacyEndValue;
         let diversityValue, intenseLvlStartValue, intenseLvlMidwayValue, intenseLvlEndValue, ExternalLubricationLevel;
+        let stimulationPreference;
 
         // Extract the necessary answers from the fetched data
         answersData.forEach(answer => {
@@ -222,7 +237,7 @@ async function fetchAndApplyAnswers() {
                     intimacyMidwayValue = clampToMax(answer.answers.find(a => a.possible_answers === 'Midway')?.answer_id, 10);
                     intimacyEndValue = clampToMax(answer.answers.find(a => a.possible_answers === 'End')?.answer_id, 10);
                 }
-            } else if (answer.question && answer.question.includes("How much do you love diversity in your sexual experiences?")) {
+            } else if (answer.question && answer.question.includes("How much do you love variety  in your sexual experiences?How much do you love variety  in your sexual experiences?")) {
                 if (answer.answer_id !== undefined) {
                     diversityValue = clampToMax(answer.answer_id, 10);
                 }
@@ -232,10 +247,14 @@ async function fetchAndApplyAnswers() {
                     intenseLvlMidwayValue = clampToMax(answer.answers.find(a => a.possible_answers === 'Midway')?.answer_id, 10);
                     intenseLvlEndValue = clampToMax(answer.answers.find(a => a.possible_answers === 'End')?.answer_id, 10);
                 }
-            } else if (answer.question && answer.question.includes("How much lube would make your journey to pleasure smoother?")) {
+            } else if (answer.question && answer.question.includes("How much lubricant would make your journey to pleasure smoother?")) {
                 if (answer.answer_id !== undefined) {
                     ExternalLubricationLevel = clampToMax(answer.answer_id, 10);
                 }
+            } else if (answer.question.includes("What are your preferences stimulation?")) {
+                stimulationPreference = answer.possible_answers.find(a => 
+                    a.Answer === answer.selected_answer
+                );
             }
         });
 
@@ -358,10 +377,10 @@ function showError(message) {
 
 
 
-function calculateAndDisplayResult(heatLevelExt, heatLevelInt, hrauselPreference, intimacyStartValue, diversity, intenseLvlStartValue, ExternalLubricationLevel, intimacyMidwayValue, intenseLvlMidwayValue, intenseLvlEndValue, intimacyEndValue) {
+function calculateAndDisplayResult(heatLevelExt, heatLevelInt, hrauselPreference, intimacyStartValue, diversity, intenseLvlStartValue, ExternalLubricationLevel, intimacyMidwayValue, intenseLvlMidwayValue, intenseLvlEndValue, intimacyEndValue, stimulationPreference) {
     const heatValueExt = heatLevelExt;
     const heatValueInt = heatLevelInt;
-    const hrauselValues = hrauselPreference;
+    let hrauselValues = hrauselPreference; // Initial hrausel values
     const intimacyStart = parseInt(intimacyStartValue);
     const intimacyMidway = parseInt(intimacyMidwayValue);
     const intimacyEnd = parseInt(intimacyEndValue);
@@ -370,12 +389,9 @@ function calculateAndDisplayResult(heatLevelExt, heatLevelInt, hrauselPreference
     const intenseLvlEnd = parseInt(intenseLvlEndValue);
     const diversityValue = parseInt(diversity);
     const externalLubricationLevel = parseInt(ExternalLubricationLevel);
-    const externalDesiredTemperature = heatValueExt * hrauselValues[1];
-    const internalDesiredTemperature = heatValueInt * hrauselValues[0];
-    const extLub = externalLubricationLevel * hrauselValues[1];
-    const intLub = externalLubricationLevel * hrauselValues[0];
     const tableBody = document.getElementById('tdresults');
-    tableBody.innerHTML = '';  
+    tableBody.innerHTML = '';
+
     const patternsStartOne = 1;
     const patternsStartTwo = 2;
     const patternsStartThree = 3;
@@ -384,6 +400,30 @@ function calculateAndDisplayResult(heatLevelExt, heatLevelInt, hrauselPreference
     for (let i = 0; i < 120; i++) {
         const sectionClass = i < 40 ? 'start' : i < 80 ? 'midway' : 'end';
         
+        // Update hrauselValues based on stimulation preference and current section
+        if (stimulationPreference) {
+            if (stimulationPreference.Answer === "Start Vaginal then Clitoral") {
+                if (i < 40) {
+                    hrauselValues = [1, 0]; // Only vibration
+                } else {
+                    hrauselValues = [1, 1]; // Both active
+                }
+            } else if (stimulationPreference.Answer === "Start Clitoral then Vaginal") {
+                if (i < 40) {
+                    hrauselValues = [0, 1]; // Only suction
+                } else {
+                    hrauselValues = [1, 1]; // Both active
+                }
+            } else if (stimulationPreference.Answer === "Combined all the way") {
+                hrauselValues = [1, 1]; // Both always active
+            }
+        }
+
+        const externalDesiredTemperature = heatValueExt * hrauselValues[1];
+        const internalDesiredTemperature = heatValueInt * hrauselValues[0];
+        const extLub = externalLubricationLevel * hrauselValues[1];
+        const intLub = externalLubricationLevel * hrauselValues[0];
+
         const row = createTableRow(
             sectionClass,
             i + 1,
@@ -399,6 +439,8 @@ function calculateAndDisplayResult(heatLevelExt, heatLevelInt, hrauselPreference
         tableBody.appendChild(row);
     }
 }
+
+
 
 function createTableRow(sectionClass, step, externalTemp, internalTemp, vibrationPatterns, vibrationIntensity, suctionPatterns, suctionIntensity, extLub, intLub) {
     const row = document.createElement('tr');
@@ -460,6 +502,98 @@ function createTableRow(sectionClass, step, externalTemp, internalTemp, vibratio
 }
 
 
+function validateAnswers(answers) {
+    const requiredQuestions = [
+        "How intense do you like each part of the program to be?",
+        "How would you articulate your ideal intimacy?",
+        "How much do you love variety  in your sexual experiences?",
+        "Which heat level takes your pleasure up a notch?",
+        "How much lubricant would make your journey to pleasure smoother?",
+        "What are your hrausel preferences?"
+    ];
+
+    // Add stimulation question to required list only if hrausel is combination
+    const hrauselAnswer = answers.find(a => a.question.includes("What are your hrausel preferences?"));
+    if (hrauselAnswer && Array.isArray(hrauselAnswer.answers) && 
+        hrauselAnswer.answers[0] === 1 && hrauselAnswer.answers[1] === 1) {
+        requiredQuestions.push("What are your preferences stimulation?");
+    }
+
+    const missingQuestions = [];
+    const answeredQuestions = new Set(answers.map(answer => answer.question));
+
+    requiredQuestions.forEach(question => {
+        if (!answeredQuestions.has(question)) {
+            missingQuestions.push(question);
+        } else {
+            const answer = answers.find(a => a.question === question);
+            if (answer.type === 'multiple') {
+                const hasAllParts = answer.answers && 
+                    ['Start', 'Midway', 'End'].every(part => 
+                        answer.answers[part] !== undefined
+                    );
+                if (!hasAllParts) {
+                    missingQuestions.push(`${question} (incomplete)`);
+                }
+            } else if (!answer.answers && !answer.answer_id) {
+                missingQuestions.push(question);
+            }
+        }
+    });
+
+    return missingQuestions;
+}
+
+function handleHrauselSelection() {
+    const questions = document.querySelectorAll('.question');
+    const hrauselQuestion = Array.from(questions).find(q => 
+        q.querySelector('h2').textContent.includes("What are your hrausel preferences?")
+    );
+    const stimulationQuestion = Array.from(questions).find(q => 
+        q.querySelector('h2').textContent.includes("What are your preferences stimulation?")
+    );
+
+    if (hrauselQuestion && stimulationQuestion) {
+        const hrauselRadios = hrauselQuestion.querySelectorAll('input[type="radio"]');
+        
+        // Add change event listener to all hrausel radio buttons
+        hrauselRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const selectedValue = JSON.parse(e.target.value);
+                
+                // If combination (1/1) is selected
+                if (selectedValue[0] === 1 && selectedValue[1] === 1) {
+                    stimulationQuestion.style.display = 'block';
+                    stimulationQuestion.querySelectorAll('input[type="radio"]').forEach(input => {
+                        input.disabled = false;
+                    });
+                } else {
+                    // For other selections (1/0 or 0/1)
+                    stimulationQuestion.style.display = 'none';
+                    stimulationQuestion.querySelectorAll('input[type="radio"]').forEach(input => {
+                        input.checked = false;
+                        input.disabled = true;
+                    });
+                }
+            });
+        });
+
+        // Initialize state on page load
+        const checkedHrausel = hrauselQuestion.querySelector('input[type="radio"]:checked');
+        if (checkedHrausel) {
+            const selectedValue = JSON.parse(checkedHrausel.value);
+            if (selectedValue[0] === 1 && selectedValue[1] === 1) {
+                stimulationQuestion.style.display = 'block';
+            } else {
+                stimulationQuestion.style.display = 'none';
+            }
+        } else {
+            stimulationQuestion.style.display = 'none';
+        }
+    }
+}
+
+
 document.addEventListener('DOMContentLoaded', function () {
     if (typeof questions !== 'undefined') {
         displayQuestions(questions); 
@@ -475,84 +609,145 @@ document.addEventListener('DOMContentLoaded', function () {
     if (submitButton) {
         submitButton.addEventListener('click', function () {
             const answers = getAnswers();
-
-
-            let heatLevelExt, heatLevelInt, hrauselPreference, intimacyStartValue, intimacyMidwayValue, intimacyEndValue;
-            let diversityValue, intenseLvlStartValue, intenseLvlMidwayValue, intenseLvlEndValue, ExternalLubricationLevel;
-
+            const missingQuestions = validateAnswers(answers);
+    
+            // First check if any questions are missing
+            if (missingQuestions.length > 0) {
+                const missingSummary = missingQuestions.join('\n• ');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Missing Answers',
+                    text: `Please answer the following questions:\n\n• ${missingSummary}`,
+                    confirmButtonText: 'OK'
+                });
+                console.error('Missing answers for questions:', missingQuestions);
+                return;
+            }
+    
+            // Initialize all required variables
+            let heatLevelExt, heatLevelInt, hrauselPreference, intimacyStartValue,
+                intimacyMidwayValue, intimacyEndValue, diversityValue, 
+                intenseLvlStartValue, intenseLvlMidwayValue, intenseLvlEndValue,
+                ExternalLubricationLevel, stimulationPreference;
+    
+            // Process each answer
             answers.forEach(answer => {
                 const translation = answer.translation;
-
+    
+                // Heat level processing
                 if (answer.question.includes("Which heat level takes your pleasure up a notch?")) {
                     heatLevelExt = clampToMax(translation, 42);
                     heatLevelInt = clampToMax(translation, 42);
-                } else if (answer.question.includes("What are your hrausel preferences?")) {
+                } 
+                // Hrausel preferences processing
+                else if (answer.question.includes("What are your hrausel preferences?")) {
                     hrauselPreference = Array.isArray(answer.answers) 
                         ? answer.answers.map(a => clampToMax(a, 1)) 
                         : clampToMax(answer.answers, 1);
-                } else if (answer.question.includes("How would you articulate your ideal intimacy")) {
+                } 
+                // Intimacy processing
+                else if (answer.question.includes("How would you articulate your ideal intimacy")) {
                     intimacyStartValue = clampToMax(answer.answers?.["Start"], 10);
                     intimacyMidwayValue = clampToMax(answer.answers?.["Midway"], 10);
                     intimacyEndValue = clampToMax(answer.answers?.["End"], 10);
-                } else if (answer.question.includes("How much do you love diversity in your sexual experiences?")) {
+                } 
+                // Variety processing
+                else if (answer.question.includes("How much do you love variety")) {
                     diversityValue = clampToMax(translation, 10);
-                } else if (answer.question.includes("How intense do you like each part of the program to be?")) {
+                } 
+                // Intensity level processing
+                else if (answer.question.includes("How intense do you like each part of the program to be?")) {
                     intenseLvlStartValue = clampToMax(answer.answers?.["Start"], 10);
                     intenseLvlMidwayValue = clampToMax(answer.answers?.["Midway"], 10);
                     intenseLvlEndValue = clampToMax(answer.answers?.["End"], 10);
-                } else if (answer.question.includes("How much lube would make your journey to pleasure smoother?")) {
+                } 
+                // Lubrication processing
+                else if (answer.question.includes("How much lubricant would make your journey to pleasure smoother?")) {
                     ExternalLubricationLevel = clampToMax(translation, 10);
                 }
+                // Stimulation preferences processing
+                else if (answer.question.includes("What are your preferences stimulation?")) {
+                    stimulationPreference = {
+                        Answer: answer.answers,
+                        Answer_translation: translation
+                    };
+                }
             });
-
+    
+            // Validate Hrausel and Stimulation combination
+            const hasHrausel = answers.some(a => a.question.includes("What are your hrausel preferences?"));
+            const hasStimulation = answers.some(a => a.question.includes("What are your preferences stimulation?"));
+    
+            if (hasHrausel && !hasStimulation) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Missing Stimulation Preference',
+                    text: 'Please select your stimulation preference when Hrausel preference is set.',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+    
+            // Validate all required values are present
             if (
                 heatLevelExt !== undefined && 
                 hrauselPreference !== undefined && 
                 intimacyStartValue !== undefined && 
                 diversityValue !== undefined && 
                 intenseLvlStartValue !== undefined && 
-                ExternalLubricationLevel !== undefined
+                ExternalLubricationLevel !== undefined &&
+                stimulationPreference !== undefined
             ) {
+                // Calculate and display results
                 calculateAndDisplayResult(
-                    heatLevelExt, heatLevelInt, hrauselPreference, intimacyStartValue, diversityValue,
-                    intenseLvlStartValue, ExternalLubricationLevel, intimacyMidwayValue,
-                    intenseLvlMidwayValue, intenseLvlEndValue, intimacyEndValue
+                    heatLevelExt, 
+                    heatLevelInt, 
+                    hrauselPreference, 
+                    intimacyStartValue, 
+                    diversityValue,
+                    intenseLvlStartValue, 
+                    ExternalLubricationLevel, 
+                    intimacyMidwayValue,
+                    intenseLvlMidwayValue, 
+                    intenseLvlEndValue, 
+                    intimacyEndValue,
+                    stimulationPreference
                 );
+    
+// Enable the download button after generating the table
+if (downloadButton) {
+    downloadButton.disabled = false;
+}
+} else {
+Swal.fire({
+    icon: 'error',
+    title: 'Oops...',
+    text: `You have not answered all the questions. Please answer all the questions to see the results.`,
+});
+console.error('Required answers not found or are incomplete.');
+}
+});
+} else {
+console.error('Submit button not found.');
+}
 
-                // Enable the download button after generating the table
-                if (downloadButton) {
-                    downloadButton.disabled = false;
-                }
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: `You have not answered all the questions. Please answer all the questions to see the results.`,
-                });
-                console.error('Required answers not found or are incomplete.');
-            }
-        });
-    } else {
-        console.error('Submit button not found.');
-    }
+if (downloadButton) {
+// Initially disable the download button until the table is generated
 
-    if (downloadButton) {
-        // Initially disable the download button until the table is generated
-
-        downloadButton.addEventListener('click', function () {
-            if (document.getElementById('tdresults').rows.length > 0) {
-                downloadTable();
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: `Please click on the submit button to generate the results before downloading the table.`,
-                });
-            }
-        });
-    } else {
-        console.error('Download button not found.');
-    }
+downloadButton.addEventListener('click', function () {
+if (document.getElementById('tdresults').rows.length > 0) {
+downloadTable();
+} else {
+Swal.fire({
+    icon: 'error',
+    title: 'Oops...',
+    text: `Please click on the submit button to generate the results before downloading the table.`,
+});
+}
+});
+} else {
+console.error('Download button not found.');
+}
 });
 
 async function downloadTable() {
