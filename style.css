@@ -5,6 +5,8 @@ body {
     color: #333; /* Dark grey text for readability */
     padding: 20px;
     margin: 0;
+    caret-color: transparent;
+
   }
   
   .container {
