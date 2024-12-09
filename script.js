@@ -3,6 +3,7 @@ import { getSuctionPattern } from './SuctionPattern.js';
 import { getVibrationIntensity } from './VibrationIntensity.js';
 import { getSuctionIntensity } from './SuctionIntensity.js';
 
+
 fetch('questions.json')
     .then(response => response.json())
     .then(data => {
@@ -51,8 +52,85 @@ fetch('questions.json')
                     questionDiv.appendChild(answerDiv);
                 });
                 
-            } else if (questionObj.possible_answers) {
-                // Handle other questions as you are currently doing
+            } else if (questionObj.question === "How would you articulate your ideal intimacy?") {
+                questionObj.possible_answers.forEach(answerObj => {
+                    const answerDiv = document.createElement('div');
+                    answerDiv.classList.add('answer');
+    
+                    const answerLabel = document.createElement('label');
+    
+                    // Check if the current part is 'Foreplay', 'Midway', or 'End'
+                    if (['Foreplay', 'Midway', 'End'].includes(answerObj.possible_answers)) {
+                        answerLabel.textContent = answerObj.possible_answers;
+                        answerDiv.appendChild(answerLabel);
+    
+                        const imagesContainer = document.createElement('div');
+                        imagesContainer.classList.add('images-container');
+    
+                        // Use the same image set for Foreplay, Midway, and End
+                        answerObj.Answer_translation.forEach(translationObj => {
+                            const imgLabel = document.createElement('label');
+                            imgLabel.classList.add('image-label');
+    
+                            const radioButton = document.createElement('input');
+                            radioButton.type = 'radio';
+                            radioButton.name = `intimacy_${answerObj.possible_answers.toLowerCase()}_${index}`;
+                            radioButton.value = translationObj.Answer; // e.g., '1', '2', etc.
+    
+                            const img = document.createElement('img');
+                            img.src = `images/${translationObj.Answer}.PNG`; // Ensure this path is correct
+                            img.alt = `Option ${translationObj.Answer}`;
+                            img.classList.add('intimacy-image');
+    
+                            imgLabel.appendChild(radioButton);
+                            imgLabel.appendChild(img);
+    
+                            imagesContainer.appendChild(imgLabel);
+                        });
+    
+                        answerDiv.appendChild(imagesContainer);
+                    } 
+                    else {
+                        if (questionObj.type === 'multiple' && answerObj['Answer_translation']) {
+                            let translation = answerObj['Answer_translation'][0];
+                            let levels = answerObj['Answer_translation'].length;
+                            const slider = document.createElement('input');
+                            slider.type = 'range';
+                            slider.min = 1;
+                            slider.max = levels;
+                            slider.value = translation.Answer;
+    
+                            answerLabel.textContent = answerObj.possible_answers;
+                            answerDiv.appendChild(answerLabel);
+    
+                            const sliderValue = document.createElement('span');
+                            sliderValue.textContent = slider.value;
+                            slider.addEventListener('input', () => {
+                                sliderValue.textContent = slider.value;
+                            });
+    
+                            answerDiv.appendChild(slider);
+                            answerDiv.appendChild(sliderValue);
+                        } else if (questionObj.type === 'single') {
+                            // Handle single-choice questions
+                            const radioButton = document.createElement('input');
+                            radioButton.type = 'radio';
+                            radioButton.name = `question${index}`;
+                            radioButton.value = answerObj.Answer;
+    
+                            radioButton.setAttribute('data-translation', JSON.stringify(answerObj['Answer_translation']));
+    
+                            answerLabel.appendChild(radioButton);
+                            answerLabel.append(answerObj.Answer);
+                            answerDiv.appendChild(answerLabel);
+                        }
+                    }
+    
+                    questionDiv.appendChild(answerDiv);
+                });
+            } 
+            // Handle other questions as usual
+            else if (questionObj.possible_answers) {
                 questionObj.possible_answers.forEach(answerObj => {
                     const answerDiv = document.createElement('div');
                     answerDiv.classList.add('answer');
@@ -60,7 +138,6 @@ fetch('questions.json')
                     const answerLabel = document.createElement('label');
     
                     if (questionObj.type === 'multiple' && answerObj['Answer_translation']) {
-                        // Handle multiple-choice with sliders
                         let translation = answerObj['Answer_translation'][0];
                         let levels = answerObj['Answer_translation'].length;
                         const slider = document.createElement('input');
@@ -93,32 +170,31 @@ fetch('questions.json')
                         answerLabel.append(answerObj.Answer);
                         answerDiv.appendChild(answerLabel);
                     }
+    
                     questionDiv.appendChild(answerDiv);
                 });
-            } else {
+            } 
+            else {
                 const noAnswerDiv = document.createElement('div');
                 noAnswerDiv.classList.add('no-answer');
                 noAnswerDiv.textContent = 'No possible answers available';
                 questionDiv.appendChild(noAnswerDiv);
             }
-            
+    
             handleHrauselSelection();
-
+    
             container.appendChild(questionDiv);
         });
     }
     
-
     function getAnswers() {
         const questions = document.querySelectorAll('.question');
         return Array.from(questions).map((question, index) => {
             const questionText = question.querySelector('h2').textContent;
             let answers = {};
             let type = '';
-
-
     
-            const answerDivs = question.querySelectorAll('.answer'); // Define answerDivs here
+            const answerDivs = question.querySelectorAll('.answer');
     
             // Handle Hrausel preferences
             if (questionText.includes("What are your hrausel preferences?")) {
@@ -130,16 +206,45 @@ fetch('questions.json')
                     console.warn(`No option selected for Hrausel preferences`);
                 }
             } 
-            // Handle questions with sliders (for External/Internal temperature, Lubrication, etc.)
-            else if (answerDivs[0] && answerDivs[0].querySelector('input[type="range"]')) {
+            // Handle "How would you articulate your ideal intimacy?" question
+            else if (questionText.includes("How would you articulate your ideal intimacy?")) {
+                type = 'multiple';
+                const intimacyAnswers = {};
+    
+                answerDivs.forEach(answerDiv => {
+                    const label = answerDiv.querySelector('label').textContent.trim();
+    
+                    if (['Foreplay', 'Midway', 'End'].includes(label)) {
+                        // Handle image-based selection
+                        const selectedImageRadio = answerDiv.querySelector('input[type="radio"]:checked');
+                        if (selectedImageRadio) {
+                            intimacyAnswers[label] = selectedImageRadio.value; // e.g., '1', '2', etc.
+                        } else {
+                            console.warn(`No image selected for ${label} intimacy`);
+                        }
+                    } else {
+                        // Handle other possible answers if any
+                        const slider = answerDiv.querySelector('input[type="range"]');
+                        if (slider) {
+                            intimacyAnswers[label] = slider.value;
+                        }
+                    }
+                });
+    
+                answers = intimacyAnswers;
+            }
+            // Handle other multiple-choice questions with sliders
+            else if (question.querySelector('input[type="range"]')) {
                 type = 'multiple';
                 answerDivs.forEach(answerDiv => {
                     const label = answerDiv.querySelector('label').textContent.trim();
                     const rangeInput = answerDiv.querySelector('input[type="range"]');
-                    answers[label] = rangeInput.value;
+                    if (rangeInput) {
+                        answers[label] = rangeInput.value;
+                    }
                 });
-            } 
-            // Handle single-choice questions (for External/Internal temperature, Lubrication, etc.)
+            }
+            // Handle single-choice questions
             else {
                 type = 'single';
                 const radioInput = question.querySelector('input[type="radio"]:checked');
@@ -156,6 +261,9 @@ fetch('questions.json')
             return { question: questionText, type, answers };
         });
     }
+    
+    
+    
     
     
     
@@ -233,7 +341,7 @@ async function fetchAndApplyAnswers() {
                 }
             } else if (answer.question && answer.question.includes("How would you articulate your ideal intimacy")) {
                 if (Array.isArray(answer.answers) && answer.answers.length > 0) {
-                    intimacyStartValue = clampToMax(answer.answers.find(a => a.possible_answers === 'Start')?.answer_id, 10);
+                    intimacyStartValue = clampToMax(answer.answers.find(a => a.possible_answers === 'Foreplay')?.answer_id, 10);
                     intimacyMidwayValue = clampToMax(answer.answers.find(a => a.possible_answers === 'Midway')?.answer_id, 10);
                     intimacyEndValue = clampToMax(answer.answers.find(a => a.possible_answers === 'End')?.answer_id, 10);
                 }
@@ -243,7 +351,7 @@ async function fetchAndApplyAnswers() {
                 }
             } else if (answer.question && answer.question.includes("How intense do you like each part of the program to be?")) {
                 if (Array.isArray(answer.answers) && answer.answers.length > 0) {
-                    intenseLvlStartValue = clampToMax(answer.answers.find(a => a.possible_answers === 'Start')?.answer_id, 10);
+                    intenseLvlStartValue = clampToMax(answer.answers.find(a => a.possible_answers === 'Foreplay')?.answer_id, 10);
                     intenseLvlMidwayValue = clampToMax(answer.answers.find(a => a.possible_answers === 'Midway')?.answer_id, 10);
                     intenseLvlEndValue = clampToMax(answer.answers.find(a => a.possible_answers === 'End')?.answer_id, 10);
                 }
@@ -515,7 +623,7 @@ function validateAnswers(answers) {
     // Add stimulation question to required list only if hrausel is combination
     const hrauselAnswer = answers.find(a => a.question.includes("What are your hrausel preferences?"));
     if (hrauselAnswer && Array.isArray(hrauselAnswer.answers) && 
-        hrauselAnswer.answers[0] === 1 && hrauselAnswer.answers[1] === 1) {
+        hrauselAnswer.answers[0] === '1' && hrauselAnswer.answers[1] === '1') { // Assuming string values
         requiredQuestions.push("What are your preferences stimulation?");
     }
 
@@ -528,12 +636,25 @@ function validateAnswers(answers) {
         } else {
             const answer = answers.find(a => a.question === question);
             if (answer.type === 'multiple') {
-                const hasAllParts = answer.answers && 
-                    ['Start', 'Midway', 'End'].every(part => 
-                        answer.answers[part] !== undefined
-                    );
-                if (!hasAllParts) {
-                    missingQuestions.push(`${question} (incomplete)`);
+                if (question.includes("How would you articulate your ideal intimacy?")) {
+                    // For this question, ensure 'Foreplay', 'Midway', and 'End' are answered with image selections
+                    if (!answer.answers['Foreplay']) {
+                        missingQuestions.push(`${question} (Foreplay selection missing)`);
+                    }
+                    if (!answer.answers['Midway']) {
+                        missingQuestions.push(`${question} (Midway selection missing)`);
+                    }
+                    if (!answer.answers['End']) {
+                        missingQuestions.push(`${question} (End selection missing)`);
+                    }
+                } else {
+                    const hasAllParts = answer.answers && 
+                        ['Foreplay', 'Midway', 'End'].every(part => 
+                            answer.answers[part] !== undefined
+                        );
+                    if (!hasAllParts) {
+                        missingQuestions.push(`${question} (incomplete)`);
+                    }
                 }
             } else if (!answer.answers && !answer.answer_id) {
                 missingQuestions.push(question);
@@ -543,6 +664,7 @@ function validateAnswers(answers) {
 
     return missingQuestions;
 }
+
 
 function handleHrauselSelection() {
     const questions = document.querySelectorAll('.question');
@@ -611,6 +733,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const answers = getAnswers();
             const missingQuestions = validateAnswers(answers);
     
+            console.log('Answers:', answers);
+
             // First check if any questions are missing
             if (missingQuestions.length > 0) {
                 const missingSummary = missingQuestions.join('\n• ');
@@ -647,7 +771,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 } 
                 // Intimacy processing
                 else if (answer.question.includes("How would you articulate your ideal intimacy")) {
-                    intimacyStartValue = clampToMax(answer.answers?.["Start"], 10);
+                    intimacyStartValue = clampToMax(answer.answers?.["Foreplay"], 10);
                     intimacyMidwayValue = clampToMax(answer.answers?.["Midway"], 10);
                     intimacyEndValue = clampToMax(answer.answers?.["End"], 10);
                 } 
@@ -657,7 +781,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 } 
                 // Intensity level processing
                 else if (answer.question.includes("How intense do you like each part of the program to be?")) {
-                    intenseLvlStartValue = clampToMax(answer.answers?.["Start"], 10);
+                    intenseLvlStartValue = clampToMax(answer.answers?.["Foreplay"], 10);
                     intenseLvlMidwayValue = clampToMax(answer.answers?.["Midway"], 10);
                     intenseLvlEndValue = clampToMax(answer.answers?.["End"], 10);
                 } 

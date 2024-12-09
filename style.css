@@ -138,4 +138,39 @@ body {
   }
 
 
-  
+  .images-container {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.image-label {
+    position: relative;
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-radius: 5px;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.3s;
+}
+
+.image-label input[type="radio"] {
+    display: none;
+}
+
+.image-label img {
+    width: 50px; /* Adjust size as needed */
+    height: 50px; /* Adjust size as needed */
+    object-fit: contain;
+    display: block;
+    transition: transform 0.3s;
+}
+
+.image-label:hover img {
+    transform: scale(1.05);
+}
+
+/* Highlight selected image */
+.image-label input[type="radio"]:checked + img {
+    border: 3px solid #ab48d3;
+}
