@@ -812,7 +812,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
     
-            // Validate all required values are present
             if (
                 heatLevelExt !== undefined && 
                 hrauselPreference !== undefined && 
