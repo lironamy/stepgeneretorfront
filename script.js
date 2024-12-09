@@ -78,7 +78,7 @@ fetch('questions.json')
                             radioButton.value = translationObj.Answer; // e.g., '1', '2', etc.
     
                             const img = document.createElement('img');
-                            img.src = `images/${translationObj.Answer}.PNG`; // Ensure this path is correct
+                            img.src = `image/${translationObj.Answer}.PNG`; // Ensure this path is correct
                             img.alt = `Option ${translationObj.Answer}`;
                             img.classList.add('intimacy-image');
     
