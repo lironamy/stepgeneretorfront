@@ -161,8 +161,8 @@ body {
 }
 
 .image-label img {
-    width: 50px; /* Adjust size as needed */
-    height: 50px; /* Adjust size as needed */
+    width: 45px; /* Adjust size as needed */
+    height: 45px; /* Adjust size as needed */
     object-fit: contain;
     display: block;
     transition: transform 0.3s;
