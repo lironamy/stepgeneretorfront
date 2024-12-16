@@ -554,7 +554,7 @@ function createTableRow(sectionClass, step, externalTemp, internalTemp, vibratio
     // Helper function to map suction intensity
     function mapSuctionIntensity(pattern, intensity) {
         // Only apply mapping for wave (3) or mountain (4) patterns
-        if (pattern === 3 || pattern === 4) {
+        if (pattern === 2 || pattern === 3 || pattern === 4) {
             if (intensity >= 1 && intensity <= 3) {
                 return 1;
             } else if (intensity >= 4 && intensity <= 6) {
@@ -615,7 +615,7 @@ function createTableRow(sectionClass, step, externalTemp, internalTemp, vibratio
         // First map the intensity based on pattern
         const mappedIntensity = mapSuctionIntensity(pattern, intensity);
         // Then apply the clamp
-        cellIntensity.textContent = Math.min(mappedIntensity, pattern === 3 || pattern === 4 ? 3 : 10);
+        cellIntensity.textContent = Math.min(mappedIntensity,pattern === 2 ||  pattern === 3 || pattern === 4 ? 3 : 10);
         row.appendChild(cellIntensity);
     });
 
@@ -902,7 +902,7 @@ async function downloadTable() {
     }
 
     function mapSuctionIntensity(pattern, intensity) {
-        if (pattern === 3 || pattern === 4) {
+        if (pattern === 2 || pattern === 3 || pattern === 4) {
             if (intensity >= 1 && intensity <= 3) {
                 return 1;
             } else if (intensity >= 4 && intensity <= 6) {
@@ -924,7 +924,7 @@ async function downloadTable() {
         
         // First map the intensity based on pattern, then apply the clamp
         const mappedIntensity = mapSuctionIntensity(pattern, intensity);
-        const clampedIntensity = Math.min(mappedIntensity, pattern === 3 || pattern === 4 ? 3 : 10);
+        const clampedIntensity = Math.min(mappedIntensity,pattern === 2 || pattern === 3 || pattern === 4 ? 3 : 10);
 
         const row = {
             1: parseInt(cells[1].textContent, 10),
