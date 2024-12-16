@@ -551,6 +551,21 @@ function calculateAndDisplayResult(heatLevelExt, heatLevelInt, hrauselPreference
 
 
 function createTableRow(sectionClass, step, externalTemp, internalTemp, vibrationPatterns, vibrationIntensity, suctionPatterns, suctionIntensity, extLub, intLub) {
+    // Helper function to map suction intensity
+    function mapSuctionIntensity(pattern, intensity) {
+        // Only apply mapping for wave (3) or mountain (4) patterns
+        if (pattern === 3 || pattern === 4) {
+            if (intensity >= 1 && intensity <= 3) {
+                return 1;
+            } else if (intensity >= 4 && intensity <= 6) {
+                return 2;
+            } else if (intensity >= 7 && intensity <= 10) {
+                return 3;
+            }
+        }
+        return intensity;
+    }
+
     const row = document.createElement('tr');
     row.classList.add(sectionClass);
 
@@ -582,19 +597,25 @@ function createTableRow(sectionClass, step, externalTemp, internalTemp, vibratio
 
     vibrationIntensity.forEach(intensity => {
         const cellIntensity = document.createElement('td');
-        cellIntensity.textContent = intensity > 10 ? 10 : intensity;
+        // Apply regular clamping for vibration intensity
+        cellIntensity.textContent = Math.min(intensity, 10);
         row.appendChild(cellIntensity);
     });
 
-    suctionPatterns.forEach(pattern => {
+    // Handle suction patterns and their corresponding intensities together
+    suctionPatterns.forEach((pattern, index) => {
         const cellPattern = document.createElement('td');
         cellPattern.textContent = pattern;
         row.appendChild(cellPattern);
-    });
 
-    suctionIntensity.forEach(intensity => {
+        // Get the corresponding intensity for this pattern
+        const intensity = suctionIntensity[index];
         const cellIntensity = document.createElement('td');
-        cellIntensity.textContent = intensity > 10 ? 10 : intensity;
+        
+        // First map the intensity based on pattern
+        const mappedIntensity = mapSuctionIntensity(pattern, intensity);
+        // Then apply the clamp
+        cellIntensity.textContent = Math.min(mappedIntensity, pattern === 3 || pattern === 4 ? 3 : 10);
         row.appendChild(cellIntensity);
     });
 
@@ -880,27 +901,45 @@ async function downloadTable() {
         return;
     }
 
+    function mapSuctionIntensity(pattern, intensity) {
+        if (pattern === 3 || pattern === 4) {
+            if (intensity >= 1 && intensity <= 3) {
+                return 1;
+            } else if (intensity >= 4 && intensity <= 6) {
+                return 2;
+            } else if (intensity >= 7 && intensity <= 10) {
+                return 3;
+            }
+        }
+        return intensity;
+    }
+
     const rows = table.rows;
     const result = [];
 
-    // Collect data from the table rows
     for (let i = 0; i < rows.length; i++) {
         const cells = rows[i].cells;
+        const pattern = parseInt(cells[7].textContent, 10); // Pattern is in column 7
+        const intensity = parseInt(cells[8].textContent, 10); // Intensity is in column 8
+        
+        // First map the intensity based on pattern, then apply the clamp
+        const mappedIntensity = mapSuctionIntensity(pattern, intensity);
+        const clampedIntensity = Math.min(mappedIntensity, pattern === 3 || pattern === 4 ? 3 : 10);
+
         const row = {
             1: parseInt(cells[1].textContent, 10),
             2: parseInt(cells[3].textContent, 10),
             3: parseInt(cells[4].textContent, 10),
             4: parseInt(cells[5].textContent, 10),
             5: parseInt(cells[6].textContent, 10),
-            6: parseInt(cells[7].textContent, 10),
-            7: parseInt(cells[8].textContent, 10),
+            6: pattern,
+            7: clampedIntensity,
             8: parseInt(cells[9].textContent, 10),
             9: parseInt(cells[10].textContent, 10),
             10: 5
         };
         result.push(row);
     }
-
     // Convert collected data to JSON format
     const data = JSON.stringify(result, null, 2);
     
@@ -925,7 +964,6 @@ async function downloadTable() {
             body: JSON.stringify({ mac_address: userMacAddress, easygjson: result })
         });
 
-        // Handling response from the server
         if (response.ok) {
             const responseData = await response.json();
             console.log('JSON saved to database:', responseData);
