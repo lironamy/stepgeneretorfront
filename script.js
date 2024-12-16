@@ -359,7 +359,7 @@ async function fetchAndApplyAnswers() {
                 if (answer.answer_id !== undefined) {
                     ExternalLubricationLevel = clampToMax(answer.answer_id, 10);
                 }
-            } else if (answer.question.includes("What are your preferences stimulation?")) {
+            } else if (answer.question.includes("What are your stimulation preferences?")) {
                 stimulationPreference = answer.possible_answers.find(a => 
                     a.Answer === answer.selected_answer
                 );
@@ -645,7 +645,7 @@ function validateAnswers(answers) {
     const hrauselAnswer = answers.find(a => a.question.includes("What are your hrausel preferences?"));
     if (hrauselAnswer && Array.isArray(hrauselAnswer.answers) && 
         hrauselAnswer.answers[0] === '1' && hrauselAnswer.answers[1] === '1') { // Assuming string values
-        requiredQuestions.push("What are your preferences stimulation?");
+        requiredQuestions.push("What are your stimulation preferences?");
     }
 
     const missingQuestions = [];
@@ -693,7 +693,7 @@ function handleHrauselSelection() {
         q.querySelector('h2').textContent.includes("What are your hrausel preferences?")
     );
     const stimulationQuestion = Array.from(questions).find(q => 
-        q.querySelector('h2').textContent.includes("What are your preferences stimulation?")
+        q.querySelector('h2').textContent.includes("What are your stimulation preferences?")
     );
 
     if (hrauselQuestion && stimulationQuestion) {
@@ -811,7 +811,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     ExternalLubricationLevel = clampToMax(translation, 10);
                 }
                 // Stimulation preferences processing
-                else if (answer.question.includes("What are your preferences stimulation?")) {
+                else if (answer.question.includes("What are your stimulation preferences?")) {
                     stimulationPreference = {
                         Answer: answer.answers,
                         Answer_translation: translation
@@ -821,7 +821,7 @@ document.addEventListener('DOMContentLoaded', function () {
     
             // Validate Hrausel and Stimulation combination
             const hasHrausel = answers.some(a => a.question.includes("What are your hrausel preferences?"));
-            const hasStimulation = answers.some(a => a.question.includes("What are your preferences stimulation?"));
+            const hasStimulation = answers.some(a => a.question.includes("What are your stimulation preferences?"));
     
             if (hasHrausel && !hasStimulation) {
                 Swal.fire({
