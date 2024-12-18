@@ -901,45 +901,32 @@ async function downloadTable() {
         return;
     }
 
-    function mapSuctionIntensity(pattern, intensity) {
-        if (pattern === 2 || pattern === 3 || pattern === 4) {
-            if (intensity >= 1 && intensity <= 3) {
-                return 1;
-            } else if (intensity >= 4 && intensity <= 6) {
-                return 2;
-            } else if (intensity >= 7 && intensity <= 10) {
-                return 3;
-            }
-        }
-        return intensity;
-    }
-
     const rows = table.rows;
     const result = [];
 
     for (let i = 0; i < rows.length; i++) {
         const cells = rows[i].cells;
-        const pattern = parseInt(cells[7].textContent, 10); // Pattern is in column 7
-        const intensity = parseInt(cells[8].textContent, 10); // Intensity is in column 8
         
-        // First map the intensity based on pattern, then apply the clamp
-        const mappedIntensity = mapSuctionIntensity(pattern, intensity);
-        const clampedIntensity = Math.min(mappedIntensity,pattern === 2 || pattern === 3 || pattern === 4 ? 3 : 10);
-
+        // The suction pattern is in position 7 and its intensity in position 8
+        const suctionPattern = parseInt(cells[7].textContent, 10);
+        const rawSuctionIntensity = parseInt(cells[8].textContent, 10);
+        
+        // Create the row object with the values in their correct positions
         const row = {
-            1: parseInt(cells[1].textContent, 10),
-            2: parseInt(cells[3].textContent, 10),
-            3: parseInt(cells[4].textContent, 10),
-            4: parseInt(cells[5].textContent, 10),
-            5: parseInt(cells[6].textContent, 10),
-            6: pattern,
-            7: clampedIntensity,
-            8: parseInt(cells[9].textContent, 10),
-            9: parseInt(cells[10].textContent, 10),
-            10: 5
+            1: parseInt(cells[1].textContent, 10),  // Step
+            2: parseInt(cells[3].textContent, 10),  // External Temperature
+            3: parseInt(cells[4].textContent, 10),  // Internal Temperature
+            4: parseInt(cells[5].textContent, 10),  // Vibration Pattern
+            5: parseInt(cells[6].textContent, 10),  // Vibration Intensity
+            6: suctionPattern,                      // Suction Pattern
+            7: rawSuctionIntensity,                 // Use the intensity directly from the table
+            8: parseInt(cells[9].textContent, 10),  // External Lubrication
+            9: parseInt(cells[10].textContent, 10), // Internal Lubrication
+            10: 5                                   // Time
         };
         result.push(row);
     }
+
     // Convert collected data to JSON format
     const data = JSON.stringify(result, null, 2);
     
