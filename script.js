@@ -27,12 +27,14 @@ fetch('questions.json')
             questionDiv.appendChild(questionText);
     
             // If it's the Hrausel preferences question
-            if (questionObj.question.includes("What are your hrausel preferences?")) {
+            if (questionObj.question.includes("What are your stimulation preferences ?")) {
                 // Predefined valid options for Hrausel preferences
                 const hrauselOptions = [
-                    { label: "Combination (1/1)", value: [1, 1] },
-                    { label: "Vaginal (1/0)", value: [1, 0] },
-                    { label: "Clitoral (0/1)", value: [0, 1] }
+                    { label: "Combination", value: [1, 1] },
+                    { label: "Vaginal", value: [1, 0] },
+                    { label: "Clitoral", value: [0, 1] },
+                    { label: "I don't know", value: [1, 1] },
+
                 ];
     
                 hrauselOptions.forEach(option => {
@@ -197,7 +199,7 @@ fetch('questions.json')
             const answerDivs = question.querySelectorAll('.answer');
     
             // Handle Hrausel preferences
-            if (questionText.includes("What are your hrausel preferences?")) {
+            if (questionText.includes("What are your stimulation preferences ?")) {
                 type = 'single';
                 const selectedRadio = question.querySelector('input[type="radio"]:checked');
                 if (selectedRadio) {
@@ -335,7 +337,7 @@ async function fetchAndApplyAnswers() {
                     heatLevelExt = clampToMax(answer.answer_id, 42);
                     heatLevelInt = clampToMax(answer.answer_id, 42);
                 }
-            } else if (answer.question && answer.question.includes("What are your hrausel preferences?")) {
+            } else if (answer.question && answer.question.includes("What are your stimulation preferences ?")) {
                 if (Array.isArray(answer.answer_id) && answer.answer_id.length > 0) {
                     hrauselPreference = answer.answer_id;
                 }
@@ -345,7 +347,7 @@ async function fetchAndApplyAnswers() {
                     intimacyMidwayValue = clampToMax(answer.answers.find(a => a.possible_answers === 'Midway')?.answer_id, 10);
                     intimacyEndValue = clampToMax(answer.answers.find(a => a.possible_answers === 'End')?.answer_id, 10);
                 }
-            } else if (answer.question && answer.question.includes("How much do you love variety  in your sexual experiences?How much do you love variety  in your sexual experiences?")) {
+            } else if (answer.question && answer.question.includes("How much do you love variety  in your sexual experiences?")) {
                 if (answer.answer_id !== undefined) {
                     diversityValue = clampToMax(answer.answer_id, 10);
                 }
@@ -359,7 +361,7 @@ async function fetchAndApplyAnswers() {
                 if (answer.answer_id !== undefined) {
                     ExternalLubricationLevel = clampToMax(answer.answer_id, 10);
                 }
-            } else if (answer.question.includes("What are your stimulation preferences?")) {
+            } else if (answer.question.includes("What is the order of stimulation you prefer?")) {
                 stimulationPreference = answer.possible_answers.find(a => 
                     a.Answer === answer.selected_answer
                 );
@@ -448,7 +450,7 @@ function applySingleChoiceAnswer(questionDiv, answer) {
         const answerData = safeJSONParse(radioInput.getAttribute('data-answer-data'));
 
         
-        if (answer.question.includes("What are your hrausel preferences?")) {
+        if (answer.question.includes("What are your stimulation preferences ?")) {
             const validHrauselOptions = [
                 JSON.stringify([1, 1]),
                 JSON.stringify([1, 0]),
@@ -638,14 +640,14 @@ function validateAnswers(answers) {
         "How much do you love variety  in your sexual experiences?",
         "Which heat level takes your pleasure up a notch?",
         "How much lubricant would make your journey to pleasure smoother?",
-        "What are your hrausel preferences?"
+        "What are your stimulation preferences ?"
     ];
 
     // Add stimulation question to required list only if hrausel is combination
-    const hrauselAnswer = answers.find(a => a.question.includes("What are your hrausel preferences?"));
+    const hrauselAnswer = answers.find(a => a.question.includes("What are your stimulation preferences ?"));
     if (hrauselAnswer && Array.isArray(hrauselAnswer.answers) && 
         hrauselAnswer.answers[0] === '1' && hrauselAnswer.answers[1] === '1') { // Assuming string values
-        requiredQuestions.push("What are your stimulation preferences?");
+        requiredQuestions.push("What is the order of stimulation you prefer?");
     }
 
     const missingQuestions = [];
@@ -690,10 +692,10 @@ function validateAnswers(answers) {
 function handleHrauselSelection() {
     const questions = document.querySelectorAll('.question');
     const hrauselQuestion = Array.from(questions).find(q => 
-        q.querySelector('h2').textContent.includes("What are your hrausel preferences?")
+        q.querySelector('h2').textContent.includes("What are your stimulation preferences ?")
     );
     const stimulationQuestion = Array.from(questions).find(q => 
-        q.querySelector('h2').textContent.includes("What are your stimulation preferences?")
+        q.querySelector('h2').textContent.includes("What is the order of stimulation you prefer?")
     );
 
     if (hrauselQuestion && stimulationQuestion) {
@@ -785,7 +787,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     heatLevelInt = clampToMax(translation, 42);
                 } 
                 // Hrausel preferences processing
-                else if (answer.question.includes("What are your hrausel preferences?")) {
+                else if (answer.question.includes("What are your stimulation preferences ?")) {
                     hrauselPreference = Array.isArray(answer.answers) 
                         ? answer.answers.map(a => clampToMax(a, 1)) 
                         : clampToMax(answer.answers, 1);
@@ -811,7 +813,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     ExternalLubricationLevel = clampToMax(translation, 10);
                 }
                 // Stimulation preferences processing
-                else if (answer.question.includes("What are your stimulation preferences?")) {
+                else if (answer.question.includes("What is the order of stimulation you prefer?")) {
                     stimulationPreference = {
                         Answer: answer.answers,
                         Answer_translation: translation
@@ -820,8 +822,8 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     
             // Validate Hrausel and Stimulation combination
-            const hasHrausel = answers.some(a => a.question.includes("What are your hrausel preferences?"));
-            const hasStimulation = answers.some(a => a.question.includes("What are your stimulation preferences?"));
+            const hasHrausel = answers.some(a => a.question.includes("What are your stimulation preferences ?"));
+            const hasStimulation = answers.some(a => a.question.includes("What is the order of stimulation you prefer?"));
     
             if (hasHrausel && !hasStimulation) {
                 Swal.fire({

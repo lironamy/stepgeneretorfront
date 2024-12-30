@@ -175,21 +175,21 @@
       ]
     },
     {
-      "question": "What are your hrausel preferences?",
+      "question": "What are your stimulation preferences ?",
       "type": "single",
       "possible_answers": [
         {
-          "Answer": "Vaginal (1/0)",
+          "Answer": "Vaginal",
           "Answer_translation": [1, 0],
           "patterns": 1
         },
         {
-          "Answer": "Clitoral (0/1)",
+          "Answer": "Clitoral",
           "Answer_translation": [0, 1],
           "patterns": 2
         },
         {
-          "Answer": "Combination (1/1)",
+          "Answer": "Combination",
           "Answer_translation": [1, 1],
           "patterns": 3
         },
@@ -201,7 +201,7 @@
       ]
     },
     {
-      "question": "What are your stimulation preferences?",
+      "question": "What is the order of stimulation you prefer?",
       "type": "single",
       "possible_answers": [
         {
@@ -234,7 +234,7 @@
       ]
     },
     {
-      "question": "How do you experience orgasms? (average time of session between 1-10 minutes)",
+      "question": "How do you experience orgasm?",
       "type": "single",
       "possible_answers": [
         {
@@ -242,15 +242,15 @@
           "Answer_translation": 1
         },
         {
-          "Answer": "It is hard for me to get to orgasms",
+          "Answer": "It's difficult for me to orgasm",
           "Answer_translation": 2
         },
         {
-          "Answer": "I get easily to orgasms",
+          "Answer": "I easily orgasm",
           "Answer_translation": 3
         },
         {
-          "Answer": "I have multiple orgasms",
+          "Answer": "I can have multiple orgasms",
           "Answer_translation": 4
         }
       ]
