@@ -749,7 +749,10 @@ document.addEventListener('DOMContentLoaded', function () {
     fetchAndApplyAnswers();
 
     const submitButton = document.getElementById('button');
-    const downloadButton = document.getElementById('download');
+    // const downloadButton = document.getElementById('download');
+    const downloadPatternsButton = document.getElementById('download-patterns');
+    const downloadTempsLubButton = document.getElementById('download-temps-lub');
+
 
     if (submitButton) {
         submitButton.addEventListener('click', function () {
@@ -861,9 +864,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 );
     
 // Enable the download button after generating the table
-if (downloadButton) {
-    downloadButton.disabled = false;
+// if (downloadButton) {
+//     downloadButton.disabled = false;
+// }
+
+if (downloadPatternsButton) {
+    downloadPatternsButton.addEventListener('click', function () {
+        handleDownloadAndSave('patterns');
+    });
 }
+
+if (downloadTempsLubButton) {
+    downloadTempsLubButton.addEventListener('click', function () {
+        handleDownloadAndSave('temps-lub');
+    });
+}
+
+
 } else {
 Swal.fire({
     icon: 'error',
@@ -896,7 +913,77 @@ console.error('Download button not found.');
 }
 });
 
-async function downloadTable() {
+// async function downloadTable() {
+//     const table = document.getElementById('tdresults');
+//     if (!table) {
+//         console.error('Table with ID "tdresults" not found.');
+//         return;
+//     }
+
+//     const rows = table.rows;
+//     const result = [];
+
+//     for (let i = 0; i < rows.length; i++) {
+//         const cells = rows[i].cells;
+        
+//         // The suction pattern is in position 7 and its intensity in position 8
+//         const suctionPattern = parseInt(cells[7].textContent, 10);
+//         const rawSuctionIntensity = parseInt(cells[8].textContent, 10);
+        
+//         // Create the row object with the values in their correct positions
+//         const row = {
+//             1: parseInt(cells[1].textContent, 10),  // Step
+//             2: parseInt(cells[3].textContent, 10),  // External Temperature
+//             3: parseInt(cells[4].textContent, 10),  // Internal Temperature
+//             4: parseInt(cells[5].textContent, 10),  // Vibration Pattern
+//             5: parseInt(cells[6].textContent, 10),  // Vibration Intensity
+//             6: suctionPattern,                      // Suction Pattern
+//             7: rawSuctionIntensity,                 // Use the intensity directly from the table
+//             8: parseInt(cells[9].textContent, 10),  // External Lubrication
+//             9: parseInt(cells[10].textContent, 10), // Internal Lubrication
+//             10: 5                                   // Time
+//         };
+//         result.push(row);
+//     }
+
+//     // Convert collected data to JSON format
+//     const data = JSON.stringify(result, null, 2);
+    
+//     // Create a Blob and download it as a file
+//     const blob = new Blob([data], { type: 'application/json' });
+//     const url = URL.createObjectURL(blob);
+//     const a = document.createElement('a');
+//     a.href = url;
+//     a.download = 'result.json';
+//     document.body.appendChild(a);
+//     a.click();
+//     document.body.removeChild(a);
+//     URL.revokeObjectURL(url);
+
+//     // Save JSON data to the database
+//     try {
+//         const response = await fetch('http://52.23.246.251:8080/saveeasyjson', {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//             },
+//             body: JSON.stringify({ mac_address: userMacAddress, easygjson: result })
+//         });
+
+//         if (response.ok) {
+//             const responseData = await response.json();
+//             console.log('JSON saved to database:', responseData);
+//         } else {
+//             const errorResponse = await response.json();
+//             console.error('Failed to save JSON to the database:', errorResponse.message);
+//         }
+//     } catch (error) {
+//         console.error('Error saving JSON to database:', error);
+//     }
+// }
+
+
+async function downloadTable(type) {
     const table = document.getElementById('tdresults');
     if (!table) {
         console.error('Table with ID "tdresults" not found.');
@@ -908,24 +995,29 @@ async function downloadTable() {
 
     for (let i = 0; i < rows.length; i++) {
         const cells = rows[i].cells;
-        
-        // The suction pattern is in position 7 and its intensity in position 8
+
+        // Suction pattern and intensity
         const suctionPattern = parseInt(cells[7].textContent, 10);
         const rawSuctionIntensity = parseInt(cells[8].textContent, 10);
-        
-        // Create the row object with the values in their correct positions
-        const row = {
-            1: parseInt(cells[1].textContent, 10),  // Step
-            2: parseInt(cells[3].textContent, 10),  // External Temperature
-            3: parseInt(cells[4].textContent, 10),  // Internal Temperature
-            4: parseInt(cells[5].textContent, 10),  // Vibration Pattern
-            5: parseInt(cells[6].textContent, 10),  // Vibration Intensity
-            6: suctionPattern,                      // Suction Pattern
-            7: rawSuctionIntensity,                 // Use the intensity directly from the table
-            8: parseInt(cells[9].textContent, 10),  // External Lubrication
-            9: parseInt(cells[10].textContent, 10), // Internal Lubrication
-            10: 5                                   // Time
-        };
+
+        let row = {};
+
+        if (type === 'patterns') {
+            row = {
+                4: parseInt(cells[5].textContent, 10),  // Vibration Pattern
+                5: parseInt(cells[6].textContent, 10),  // Vibration Intensity
+                6: suctionPattern,                      // Suction Pattern
+                7: rawSuctionIntensity                  // Suction Intensity
+            };
+        } else if (type === 'temps-lub') {
+            row = {
+                2: parseInt(cells[3].textContent, 10),  // External Temperature
+                3: parseInt(cells[4].textContent, 10),  // Internal Temperature
+                8: parseInt(cells[9].textContent, 10),  // External Lubrication
+                9: parseInt(cells[10].textContent, 10)  // Internal Lubrication
+            };
+        }
+
         result.push(row);
     }
 
@@ -937,25 +1029,77 @@ async function downloadTable() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'result.json';
+    a.download = type === 'patterns' ? 'patterns.json' : 'temps-lub.json';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+}
 
-    // Save JSON data to the database
+
+async function handleDownloadAndSave(type) {
+    const table = document.getElementById('tdresults');
+    if (!table) {
+        console.error('Table with ID "tdresults" not found.');
+        return;
+    }
+
+    const rows = table.rows;
+    const resultFull = []; // Full data (1-10) for database
+    const resultFiltered = []; // Filtered data for download
+
+    for (let i = 0; i < rows.length; i++) {
+        const cells = rows[i].cells;
+
+        const suctionPattern = parseInt(cells[7].textContent, 10);
+        const rawSuctionIntensity = parseInt(cells[8].textContent, 10);
+
+        // Full data (1-10) to be saved in the database
+        const fullRow = {
+            1: parseInt(cells[1].textContent, 10),  // Step
+            2: parseInt(cells[3].textContent, 10),  // External Temperature
+            3: parseInt(cells[4].textContent, 10),  // Internal Temperature
+            4: parseInt(cells[5].textContent, 10),  // Vibration Pattern
+            5: parseInt(cells[6].textContent, 10),  // Vibration Intensity
+            6: suctionPattern,                      // Suction Pattern
+            7: rawSuctionIntensity,                 // Suction Intensity
+            8: parseInt(cells[9].textContent, 10),  // External Lubrication
+            9: parseInt(cells[10].textContent, 10), // Internal Lubrication
+            10: 5                                   // Time
+        };
+        resultFull.push(fullRow);
+
+        // Filtered data based on button clicked
+        if (type === 'patterns') {
+            resultFiltered.push({
+                4: fullRow[4], // Vibration Pattern
+                5: fullRow[5], // Vibration Intensity
+                6: fullRow[6], // Suction Pattern
+                7: fullRow[7]  // Suction Intensity
+            });
+        } else if (type === 'temps-lub') {
+            resultFiltered.push({
+                2: fullRow[2], // External Temperature
+                3: fullRow[3], // Internal Temperature
+                8: fullRow[8], // External Lubrication
+                9: fullRow[9]  // Internal Lubrication
+            });
+        }
+    }
+
+    // Save full data (1-10) to the database
     try {
         const response = await fetch('http://52.23.246.251:8080/saveeasyjson', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ mac_address: userMacAddress, easygjson: result })
+            body: JSON.stringify({ mac_address: userMacAddress, easygjson: resultFull })
         });
 
         if (response.ok) {
             const responseData = await response.json();
-            console.log('JSON saved to database:', responseData);
+            console.log('Full JSON saved to database:', responseData);
         } else {
             const errorResponse = await response.json();
             console.error('Failed to save JSON to the database:', errorResponse.message);
@@ -963,7 +1107,20 @@ async function downloadTable() {
     } catch (error) {
         console.error('Error saving JSON to database:', error);
     }
+
+    // Download filtered JSON
+    downloadJSON(resultFiltered, type);
 }
 
-
-
+function downloadJSON(data, type) {
+    const jsonData = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = type === 'patterns' ? 'patterns.json' : 'temps-lub.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
