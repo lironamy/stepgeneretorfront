@@ -1071,6 +1071,7 @@ async function handleDownloadAndSave(type) {
 
         // Filtered data based on button clicked
         if (type === 'patterns') {
+            // Process all rows for patterns
             resultFiltered.push({
                 4: fullRow[4], // Vibration Pattern
                 5: fullRow[5], // Vibration Intensity
@@ -1078,12 +1079,16 @@ async function handleDownloadAndSave(type) {
                 7: fullRow[7]  // Suction Intensity
             });
         } else if (type === 'temps-lub') {
-            resultFiltered.push({
-                2: fullRow[2], // External Temperature
-                3: fullRow[3], // Internal Temperature
-                8: fullRow[8], // External Lubrication
-                9: fullRow[9]  // Internal Lubrication
-            });
+            // Only process the first row for temps-lub
+            if (i === 0) {
+                resultFiltered.push({
+                    2: fullRow[2], // External Temperature
+                    3: fullRow[3], // Internal Temperature
+                    8: fullRow[8], // External Lubrication
+                    9: fullRow[9]  // Internal Lubrication
+                });
+                break; // Exit the loop after processing the first row for temps-lub
+            }
         }
     }
 
@@ -1108,7 +1113,7 @@ async function handleDownloadAndSave(type) {
         console.error('Error saving JSON to database:', error);
     }
 
-    // Download filtered JSON
+    // Download filtered JSON (for selected type)
     downloadJSON(resultFiltered, type);
 }
 
