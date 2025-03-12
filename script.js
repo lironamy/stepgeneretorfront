@@ -1088,7 +1088,3 @@ function downloadJSON(data) {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 }
-
-
-
-
