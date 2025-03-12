@@ -749,7 +749,7 @@ document.addEventListener('DOMContentLoaded', function () {
     fetchAndApplyAnswers();
 
     const submitButton = document.getElementById('button');
-    // const downloadButton = document.getElementById('download');
+    //  const downloadButton = document.getElementById('download');
     const downloadPatternsButton = document.getElementById('download-patterns');
     const downloadTempsLubButton = document.getElementById('download-temps-lub');
 
@@ -1037,7 +1037,7 @@ async function downloadTable(type) {
 }
 
 
-async function handleDownloadAndSave(type) {
+async function handleDownloadAndSave() {
     const table = document.getElementById('tdresults');
     if (!table) {
         console.error('Table with ID "tdresults" not found.');
@@ -1045,82 +1045,50 @@ async function handleDownloadAndSave(type) {
     }
 
     const rows = table.rows;
-    const resultFull = []; // Full data (1-10) for database
-    const resultFiltered = []; // Filtered data for download
+    if (rows.length === 0) {
+        console.error('No data available in the table.');
+        return;
+    }
 
+    // Initialize an empty array for the final structure
+    let resultData = [];
+
+    // Extract TempsLubrication from the first row and add it as the first object in the array
+    const firstRow = rows[0].cells;
+    resultData.push({
+        "3": parseInt(firstRow[4].textContent, 10),  // Internal Temperature (key 3)
+        "8": parseInt(firstRow[9].textContent, 10),  // External Lubrication (key 8)
+        "9": parseInt(firstRow[10].textContent, 10)  // Internal Lubrication (key 9)
+    });
+
+    // Extract Patterns from all rows and append them to the array
     for (let i = 0; i < rows.length; i++) {
         const cells = rows[i].cells;
-
-        const suctionPattern = parseInt(cells[7].textContent, 10);
-        const rawSuctionIntensity = parseInt(cells[8].textContent, 10);
-
-        // Full data (1-10) to be saved in the database
-        const fullRow = {
-            1: parseInt(cells[1].textContent, 10),  // Step
-            2: parseInt(cells[3].textContent, 10),  // External Temperature
-            3: parseInt(cells[4].textContent, 10),  // Internal Temperature
-            4: parseInt(cells[5].textContent, 10),  // Vibration Pattern
-            5: parseInt(cells[6].textContent, 10),  // Vibration Intensity
-            6: suctionPattern,                      // Suction Pattern
-            7: rawSuctionIntensity,                 // Suction Intensity
-            8: parseInt(cells[9].textContent, 10),  // External Lubrication
-            9: parseInt(cells[10].textContent, 10), // Internal Lubrication
-            10: 5                                   // Time
-        };
-        resultFull.push(fullRow);
-
-        // Filtered data based on button clicked
-        if (type === 'patterns') {
-            resultFiltered.push({
-                4: fullRow[4], // Vibration Pattern
-                5: fullRow[5], // Vibration Intensity
-                6: fullRow[6], // Suction Pattern
-                7: fullRow[7]  // Suction Intensity
-            });
-        } else if (type === 'temps-lub') {
-            resultFiltered.push({
-                2: fullRow[2], // External Temperature
-                3: fullRow[3], // Internal Temperature
-                8: fullRow[8], // External Lubrication
-                9: fullRow[9]  // Internal Lubrication
-            });
-        }
-    }
-
-    // Save full data (1-10) to the database
-    try {
-        const response = await fetch('http://52.23.246.251:8080/saveeasyjson', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ mac_address: userMacAddress, easygjson: resultFull })
+        resultData.push({
+            "4": parseInt(cells[5].textContent, 10),  // Vibration Pattern (key 4)
+            "5": parseInt(cells[6].textContent, 10),  // Vibration Intensity (key 5)
+            "6": parseInt(cells[7].textContent, 10),  // Suction Pattern (key 6)
+            "7": parseInt(cells[8].textContent, 10)   // Suction Intensity (key 7)
         });
-
-        if (response.ok) {
-            const responseData = await response.json();
-            console.log('Full JSON saved to database:', responseData);
-        } else {
-            const errorResponse = await response.json();
-            console.error('Failed to save JSON to the database:', errorResponse.message);
-        }
-    } catch (error) {
-        console.error('Error saving JSON to database:', error);
     }
 
-    // Download filtered JSON
-    downloadJSON(resultFiltered, type);
+    // Download the JSON
+    downloadJSON(resultData);
 }
 
-function downloadJSON(data, type) {
+function downloadJSON(data) {
     const jsonData = JSON.stringify(data, null, 2);
     const blob = new Blob([jsonData], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = type === 'patterns' ? 'patterns.json' : 'temps-lub.json';
+    a.download = "pleasure.json";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 }
+
+
+
+
